@@ -1,7 +1,7 @@
 from openai import OpenAI
 import os
 
-# Initialize OpenAI client using API key from Streamlit Secrets or env
+# Initialize the OpenAI client with your secret key
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_variants(base_prompt, goal):
