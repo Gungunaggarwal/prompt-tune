@@ -1,8 +1,8 @@
-from openai import OpenAI
+import openai
 import os
 
-# Load OpenAI API key from environment
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Load OpenAI API key from env (Streamlit secrets will pass this)
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def generate_variants(base_prompt, goal):
     system = "You are a prompt engineering expert. Improve prompts for LLMs."
@@ -13,7 +13,7 @@ Goal: "{goal}"
 
 Generate 3 different improved prompt variations. Return as a numbered list."""
 
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": system},
@@ -21,7 +21,7 @@ Generate 3 different improved prompt variations. Return as a numbered list."""
         ]
     )
 
-    content = response.choices[0].message.content
+    content = response['choices'][0]['message']['content']
     lines = content.split("\n")
     prompts = [line[line.find('. ')+2:] for line in lines if '. ' in line]
     return prompts
@@ -40,14 +40,14 @@ Give a brief review and rate from 1 to 10 (10 = perfect). Format:
 Review: <your review>
 Score: <number>
 """
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": user}
             ]
         )
-        content = response.choices[0].message.content
+        content = response['choices'][0]['message']['content']
         try:
             review = content.split("Review:")[1].split("Score:")[0].strip()
             score = int(content.split("Score:")[1].strip())
@@ -59,14 +59,13 @@ Score: <number>
 
 def get_response(prompt):
     try:
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": prompt}
             ]
         )
-        return response.choices[0].message.content.strip()
+        return response['choices'][0]['message']['content'].strip()
     except Exception as e:
         return f"Error generating response: {e}"
-
