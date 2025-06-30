@@ -42,7 +42,8 @@ Score: <number>
 """
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": user}]
+            messages=[{"role": "user", "content": user}
+            ]
         )
         content = response.choices[0].message.content
         try:
