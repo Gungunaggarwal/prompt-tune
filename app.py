@@ -31,4 +31,4 @@ if st.button("🔄 Optimize Prompt"):
             st.markdown(output)
         st.markdown("---")
 
-    st.success(f"✅ Best Prompt: "{best_prompt['prompt']}"")
+    st.success(f"✅ Best Prompt: {best_prompt['prompt']}")
