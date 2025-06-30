@@ -1,7 +1,8 @@
-import openai
+from openai import OpenAI
 import os
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client using API key from Streamlit Secrets or env
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_variants(base_prompt, goal):
     system = "You are a prompt engineering expert. Improve prompts for LLMs."
@@ -12,12 +13,16 @@ Goal: "{goal}"
 
 Generate 3 different improved prompt variations. Return as a numbered list."""
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}]
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user}
+        ]
     )
 
-    lines = response['choices'][0]['message']['content'].split("\n")
+    content = response.choices[0].message.content
+    lines = content.split("\n")
     prompts = [line[line.find('. ')+2:] for line in lines if '. ' in line]
     return prompts
 
@@ -35,11 +40,11 @@ Give a brief review and rate from 1 to 10 (10 = perfect). Format:
 Review: <your review>
 Score: <number>
 """
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": user}]
         )
-        content = response['choices'][0]['message']['content']
+        content = response.choices[0].message.content
         try:
             review = content.split("Review:")[1].split("Score:")[0].strip()
             score = int(content.split("Score:")[1].strip())
@@ -51,10 +56,10 @@ Score: <number>
 
 def get_response(prompt):
     try:
-        completion = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
-        return completion.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         return f"Error generating response: {e}"
